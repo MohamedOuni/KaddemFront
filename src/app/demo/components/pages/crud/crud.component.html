@@ -1,0 +1,70 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+      <p-toast></p-toast>
+      <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+          <div class="my-2">
+            <button pButton pRipple label="Nouveau Congé" class="p-button-success mr-2" (click)="showCongeDialog(nouveauConge)"></button>
+          </div>
+        </ng-template>
+      </p-toolbar>
+
+      <p-table #dt [value]="conges" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['description', 'date_deb', 'date_fin', 'nbr_jours', 'typeConge']"
+        [paginator]="true" [rowsPerPageOptions]="rowsPerPageOptions" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Affichage de {first} à {last} de {totalRecords} entrées" [(selection)]="selectedConges"
+        selectionMode="multiple" [rowHover]="true" dataKey="id">
+        <ng-template pTemplate="caption">
+          <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <h5 class="m-0">Gérer les Congés</h5>
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Rechercher..." class="w-full sm:w-auto" />
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem"></th>
+            <th style="width: 25%">Description</th>
+            <th style="width: 10%">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-conge>
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="conge"></p-tableCheckbox>
+            </td>
+            <td>{{ conge.nomDepart }}</td>
+            <td>
+              <div class="flex">
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="showCongeDialog(conge)"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="supprimerConge(conge.idDepart)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <p-dialog [(visible)]="congeDialog" [style]="{ width: '450px' }" 
+      header="{{ mode === 'ajout' ? 'Nouveau Congé' : 'Modifier Congé' }}"
+      [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+          <div class="p-fluid">
+            <div class="p-field">
+              <label for="description">Description</label>
+              <input pInputText id="description" [(ngModel)]="nouveauConge.nomDepart" />
+            </div>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text" (click)="hideCongeDialog()"></button>
+          <button pButton pRipple label="{{ mode === 'ajout' ? 'Ajouter' : 'Modifier' }}" 
+                  icon="pi pi-check" class="p-button-text" 
+                  (click)="submitted ? null : (nouveauConge.idDepart ? modifierConge(nouveauConge) : ajouterConge(nouveauConge))">
+          </button>
+        </ng-template>    
+      </p-dialog>
+    </div>
+  </div>
+</div>
