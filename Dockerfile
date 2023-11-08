@@ -1,8 +1,14 @@
-FROM node:16 as angular
+### STAGE 1: Build Angular app ###
+FROM node AS build
 WORKDIR /app
-COPY . . 
-RUN npm install --force
-RUN npm run build
-FROM httpd:alpine3.15
-WORKDIR /usr/local/apache2/htdocs
-COPY --from=angular /app/dist/sakai-ng-master .
+COPY package.json package-lock.json ./
+RUN npm cache clean --force
+COPY . .
+RUN npm install --legacy-peer-deps --force
+RUN npm run build --prod
+
+### STAGE 2: Run with Nginx ###
+FROM nginx:latest AS ngi
+COPY --from=build /app/dist/crudtuto-Front /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
