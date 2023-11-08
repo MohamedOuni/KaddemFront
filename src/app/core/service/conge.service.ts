@@ -7,7 +7,7 @@ import { Departement } from '../model/Departement';
   providedIn: 'root'
 })
 export class CongeService {
-  private apiUrl = 'http://localhost:8089/kaddem/departement';
+  private apiUrl = 'http://192.168.3.44:8089/kaddem/departement';
 
   constructor(private http: HttpClient) { }
 
