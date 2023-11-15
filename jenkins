@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+    environment {
+        JAVA_HOME = '/usr/lib/jvm/java-11-openjdk-amd64/'
+        M2_HOME = '/opt/apache-maven-3.6.3'
+    }
+    stages {
+        stage('Git Checkout') {
+            steps {
+                script {
+                    git changelog: false, poll: false, url: 'https://github.com/MohamedOuni/KaddemFront.git'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm install --legacy-peer-deps --force'
+                sh 'npm run build --legacy-peer-deps --force '
+            }
+        }
+
+        stage('Build docker image') {
+            steps {
+                script {
+                    sh "docker build -t ounimohamed/KaddemFront:latest ."
+                }
+            }
+        }
+
+        stage('Push image to Hub') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhubpwd')]) {
+                        sh 'docker login -u ounimohamed -p $dockerhubpwd'
+                        sh 'docker push ounimohamed/KaddemFront:latest'
+                    }
+                }
+            }
+        }
+    }
+}
